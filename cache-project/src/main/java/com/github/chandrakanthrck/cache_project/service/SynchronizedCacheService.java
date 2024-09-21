@@ -1,14 +1,17 @@
 package com.github.chandrakanthrck.cache_project.service;
 
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service
 public class SynchronizedCacheService<K, V> implements CacheService<K, V>{
     private final CacheService<K, V> inMemoryCacheService;
     private final CacheService<K, V> persistentCacheService;
-    public SynchronizedCacheService(CacheService<K, V> inMemoryCacheService,
-                                    CacheService<K, V> persistentCacheService){
+    @Autowired
+    public SynchronizedCacheService(@Qualifier("inMemoryCacheService") CacheService<K, V> inMemoryCacheService,
+                                    @Qualifier("persistentCacheService") CacheService<K, V> persistentCacheService){
         this.inMemoryCacheService = inMemoryCacheService;
         this.persistentCacheService = persistentCacheService;
     }
