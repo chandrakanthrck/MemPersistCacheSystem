@@ -1,0 +1,8 @@
+global:
+  scrape_interval: 15s  # How frequently to scrape targets
+
+scrape_configs:
+  - job_name: 'spring-boot-cache-metrics'
+    metrics_path: '/actuator/prometheus'  # The path for Spring Boot metrics
+    static_configs:
+      - targets: ['localhost:8080']  # Your Spring Boot app URL
