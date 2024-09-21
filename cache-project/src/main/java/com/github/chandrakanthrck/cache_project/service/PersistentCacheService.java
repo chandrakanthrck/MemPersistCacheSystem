@@ -1,36 +1,37 @@
 package com.github.chandrakanthrck.cache_project.service;
 
+import com.github.chandrakanthrck.cache_project.eviction.CacheValue;
 import com.github.chandrakanthrck.cache_project.model.CacheEntry;
 import com.github.chandrakanthrck.cache_project.repository.CacheRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
 @Component
-public class PersistentCacheService implements CacheService<String, String> {
-    private final CacheRepository cacheRepository;
+public class PersistentCacheService<K> implements CacheService<K, String> { // Use String directly
+    private final CacheRepository<K> cacheRepository;
 
-    public PersistentCacheService(CacheRepository cacheRepository) {
+    public PersistentCacheService(CacheRepository<K> cacheRepository) {
         this.cacheRepository = cacheRepository;
     }
 
+
     @Override
-    public void put(String key, String value) {
-        CacheEntry entry = new CacheEntry();
+    public void put(K key, String value) {
+        CacheEntry<K, String> entry = new CacheEntry<>();
         entry.setKey(key);
         entry.setValue(value);
         cacheRepository.save(entry);
     }
 
     @Override
-    public String get(String key) {
-        Optional<CacheEntry> cacheEntry = cacheRepository.findById(key);
+    public CacheValue<String> get(K key) {
+        Optional<CacheEntry<K, CacheValue<String>>> cacheEntry = cacheRepository.findById(key);
         return cacheEntry.map(CacheEntry::getValue).orElse(null);
     }
 
     @Override
-    public void remove(String key) {
+    public void remove(K key) {
         cacheRepository.deleteById(key);
     }
 

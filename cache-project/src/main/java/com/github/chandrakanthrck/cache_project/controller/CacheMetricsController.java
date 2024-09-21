@@ -10,11 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/cache/metrics")
 public class CacheMetricsController {
-
-    private final SynchronizedCacheService<String, Object> cacheService;
+    private final SynchronizedCacheService cacheService; // Use the non-generic version
 
     @Autowired
-    public CacheMetricsController(SynchronizedCacheService<String, Object> cacheService) {
+    public CacheMetricsController(SynchronizedCacheService cacheService) {
         this.cacheService = cacheService;
     }
 

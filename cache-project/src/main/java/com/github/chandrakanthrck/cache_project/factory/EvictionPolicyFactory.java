@@ -4,8 +4,7 @@ import com.github.chandrakanthrck.cache_project.eviction.*;
 
 import java.util.concurrent.TimeUnit;
 
-public class EvictionPolicyFactory<K, V> {
-
+public class EvictionPolicyFactory<K, V> { // Keep both K and V
     public enum EvictionType {
         TTL, LRU, LFU
     }

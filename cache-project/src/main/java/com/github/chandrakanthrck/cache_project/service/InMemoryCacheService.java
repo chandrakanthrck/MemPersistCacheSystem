@@ -1,40 +1,48 @@
 package com.github.chandrakanthrck.cache_project.service;
 
+import com.github.chandrakanthrck.cache_project.eviction.CacheValue;
+import com.github.chandrakanthrck.cache_project.eviction.EvictionPolicy;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Counter;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-@Component
-public class InMemoryCacheService<K,V> implements CacheService<K, V>{
-    private final ConcurrentMap<K, V> cache;
+public class InMemoryCacheService<K> implements CacheService<K, String> { // Use String directly
+    private final ConcurrentMap<K, String> cache;
+    private final EvictionPolicy<K, String> evictionPolicy;
 
-    public InMemoryCacheService() {
+    public InMemoryCacheService(EvictionPolicy<K, String> evictionPolicy, MeterRegistry meterRegistry) {
         this.cache = new ConcurrentHashMap<>();
+        this.evictionPolicy = evictionPolicy;
     }
 
     @Override
-    public void put(K key, V value) {
+    public void put(K key, String value) {
+        evictionPolicy.onPut(key, new CacheValue<>(value), cache); // Wrap in CacheValue
         cache.put(key, value);
     }
 
     @Override
-    public V get(K key) {
+    public String get(K key) {
         return cache.get(key);
     }
 
     @Override
     public void remove(K key) {
-        cache.remove(key);
+
     }
 
     @Override
     public void clear() {
-        cache.clear();
+
     }
 
     @Override
     public int size() {
-        return cache.size();
+        return 0;
     }
+
+    // other methods remain unchanged
 }

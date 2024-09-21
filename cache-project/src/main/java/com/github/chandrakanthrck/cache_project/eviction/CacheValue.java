@@ -1,14 +1,16 @@
 package com.github.chandrakanthrck.cache_project.eviction;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class CacheValue<V> {
     private final V value;
     private final long createdAt;
-    private int accessCount;
+    private final AtomicInteger accessCount;
 
     public CacheValue(V value) {
         this.value = value;
         this.createdAt = System.currentTimeMillis();
-        this.accessCount = 1;  // Starts with 1 since it's accessed on put
+        this.accessCount = new AtomicInteger(1);
     }
 
     public V getValue() {
@@ -20,10 +22,14 @@ public class CacheValue<V> {
     }
 
     public int getAccessCount() {
-        return accessCount;
+        return accessCount.get();
     }
 
     public void incrementAccessCount() {
-        this.accessCount++;
+        this.accessCount.incrementAndGet();
+    }
+
+    public boolean isExpired(long ttl) {
+        return System.currentTimeMillis() - createdAt > ttl;
     }
 }
