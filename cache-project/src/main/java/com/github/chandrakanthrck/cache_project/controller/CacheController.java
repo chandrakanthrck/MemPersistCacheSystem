@@ -6,10 +6,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @RestController
 @RequestMapping("/cache")
 public class CacheController {
 
+    private static final Logger logger = LoggerFactory.getLogger(CacheController.class);
     private final SynchronizedCacheService cacheService;
 
     @Autowired
@@ -19,50 +23,82 @@ public class CacheController {
 
     @PostMapping("/put")
     public ResponseEntity<String> put(@RequestParam String key, @RequestParam String value) {
-        cacheService.put(key, value);
-        return new ResponseEntity<>("Cached " + key, HttpStatus.CREATED);
+        try {
+            cacheService.put(key, value);
+            return new ResponseEntity<>("Cached " + key, HttpStatus.CREATED);
+        } catch (Exception e) {
+            logger.error("Error caching key: {}. Error: {}", key, e.getMessage());
+            return new ResponseEntity<>("Error caching key: " + key, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/get")
     public ResponseEntity<Object> get(@RequestParam String key) {
-        String value = cacheService.get(key);
-        if (value != null) {
-            return new ResponseEntity<>(value, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Key not found", HttpStatus.NOT_FOUND);
+        try {
+            String value = cacheService.get(key);
+            if (value != null) {
+                return new ResponseEntity<>(value, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Key not found", HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            logger.error("Error retrieving key: {}. Error: {}", key, e.getMessage());
+            return new ResponseEntity<>("Error retrieving key: " + key, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @DeleteMapping("/remove")
     public ResponseEntity<String> remove(@RequestParam String key) {
-        cacheService.remove(key);
-        return new ResponseEntity<>("Removed " + key, HttpStatus.OK);
+        try {
+            cacheService.remove(key);
+            return new ResponseEntity<>("Removed " + key, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error removing key: {}. Error: {}", key, e.getMessage());
+            return new ResponseEntity<>("Error removing key: " + key, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @DeleteMapping("/clear")
     public ResponseEntity<String> clear() {
-        cacheService.clear();
-        return new ResponseEntity<>("Cache cleared", HttpStatus.OK);
+        try {
+            cacheService.clear();
+            return new ResponseEntity<>("Cache cleared", HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error clearing cache. Error: {}", e.getMessage());
+            return new ResponseEntity<>("Error clearing cache", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    // Endpoint to get the total size of the cache (in-memory + persistent)
     @GetMapping("/size")
     public ResponseEntity<Integer> totalSize() {
-        int size = cacheService.size();
-        return new ResponseEntity<>(size, HttpStatus.OK);
+        try {
+            int size = cacheService.size();
+            return new ResponseEntity<>(size, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error getting total cache size. Error: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    // Endpoint to get the size of the in-memory cache
     @GetMapping("/size/in-memory")
     public ResponseEntity<Integer> inMemorySize() {
-        int inMemorySize = cacheService.getInMemoryCacheSize();
-        return new ResponseEntity<>(inMemorySize, HttpStatus.OK);
+        try {
+            int inMemorySize = cacheService.getInMemoryCacheSize();
+            return new ResponseEntity<>(inMemorySize, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error getting in-memory cache size. Error: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    // Endpoint to get the size of the persistent cache
     @GetMapping("/size/persistent")
     public ResponseEntity<Integer> persistentSize() {
-        int persistentSize = cacheService.getPersistentCacheSize();
-        return new ResponseEntity<>(persistentSize, HttpStatus.OK);
+        try {
+            int persistentSize = cacheService.getPersistentCacheSize();
+            return new ResponseEntity<>(persistentSize, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error getting persistent cache size. Error: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

@@ -10,11 +10,11 @@ import org.springframework.test.annotation.DirtiesContext;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)  // This will reset the context before each test
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)  // Resets the context before each test
 class CacheProjectApplicationTests {
 
     @Autowired
-    private SynchronizedCacheService cacheService;  // Ensure correct type
+    private SynchronizedCacheService cacheService;  // Ensure correct type with generics
 
     @Test
     void testCacheAndPersistentStore() {
@@ -25,12 +25,12 @@ class CacheProjectApplicationTests {
         assertEquals("value1", cacheService.get("key1"), "Value from cache is incorrect");
 
         // Ensure the persistent store was also updated and is in sync
-        assertNotNull(cacheService.get("key1"), "Value not found in persistent store");
+        assertNotNull(cacheService.get("key1"), "Value should exist in persistent store");
     }
 
     @Test
     void testCacheMissAndUpdateFromPersistentStore() {
-        // Simulate a cache miss (assume value exists in persistent store)
+        // Put value in cache
         cacheService.put("key2", "value2");
 
         // Clear in-memory cache to simulate a miss
@@ -39,7 +39,7 @@ class CacheProjectApplicationTests {
         // Ensure cache is cleared
         assertNull(cacheService.get("key2"), "Cache should be cleared");
 
-        // After fetching from persistent store, value should be reloaded into cache
+        // Retrieve from persistent store, value should be reloaded into cache
         cacheService.put("key2", "value2");  // Simulate reload from persistent store
         assertEquals("value2", cacheService.get("key2"), "Value should be reloaded from persistent store");
     }
@@ -73,7 +73,6 @@ class CacheProjectApplicationTests {
         // Ensure that the cache size remains at maxCacheSize (100)
         assertEquals(100, cacheService.size(), "Cache size should remain at 100 after eviction");
     }
-
 
     @Test
     void testClearCache() {

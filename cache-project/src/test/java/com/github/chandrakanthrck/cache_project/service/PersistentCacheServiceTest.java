@@ -28,7 +28,7 @@ class PersistentCacheServiceTest {
     @InjectMocks
     private PersistentCacheService persistentCacheService;
 
-    private Counter counterMock; // Counter mock for testing
+    private Counter counterMock;
 
     @BeforeEach
     void setUp() {

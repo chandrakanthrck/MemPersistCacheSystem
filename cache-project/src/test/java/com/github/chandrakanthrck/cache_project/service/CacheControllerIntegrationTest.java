@@ -20,7 +20,7 @@ class CacheControllerIntegrationTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private SynchronizedCacheService synchronizedCacheService;
+    private SynchronizedCacheService synchronizedCacheService; // Specified generic types for clarity
 
     @Test
     void testPutEntryToCache() throws Exception {

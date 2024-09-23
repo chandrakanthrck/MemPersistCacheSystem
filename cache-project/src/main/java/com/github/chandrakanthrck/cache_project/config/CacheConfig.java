@@ -24,26 +24,27 @@ public class CacheConfig {
     @Value("${cache.eviction.policy:LRU}")  // Default eviction policy is LRU, can be configured
     private String evictionPolicyType;
 
-    // Define the EvictionPolicyFactory bean
     @Bean
     public EvictionPolicyFactory<String, String> evictionPolicyFactory() {
         logger.info("Creating EvictionPolicyFactory bean");
-        return new EvictionPolicyFactory<>();  // Instantiate the factory with String keys and values
+        return new EvictionPolicyFactory<>();
     }
 
-    // Define the InMemoryCacheService bean
     @Bean
     public InMemoryCacheService<String, String> inMemoryCacheService(
             EvictionPolicyFactory<String, String> evictionPolicyFactory,
             MeterRegistry meterRegistry) {
 
-        // Parse the eviction policy type (TTL, LRU, LFU) from the configuration
-        EvictionPolicyFactory.EvictionType evictionType = EvictionPolicyFactory.EvictionType.valueOf(evictionPolicyType.toUpperCase());
+        EvictionPolicyFactory.EvictionType evictionType;
+        try {
+            evictionType = EvictionPolicyFactory.EvictionType.valueOf(evictionPolicyType.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            logger.severe("Invalid eviction policy type: " + evictionPolicyType);
+            throw e; // Rethrow or handle as needed
+        }
 
-        // Log the chosen eviction policy and cache size
         logger.info("Configuring InMemoryCacheService with eviction policy: " + evictionType + " and max cache size: " + maxCacheSize);
 
-        // Return the in-memory cache service with the chosen eviction policy and configured max size
         return new InMemoryCacheService<>(
                 evictionPolicyFactory.getEvictionPolicy(evictionType, maxCacheSize, 10000L, false, meterRegistry),
                 meterRegistry,
@@ -51,28 +52,25 @@ public class CacheConfig {
         );
     }
 
-    // Define the PersistentCacheService bean
     @Bean
     public PersistentCacheService persistentCacheService(CacheRepository cacheRepository, MeterRegistry meterRegistry) {
         logger.info("Creating PersistentCacheService bean");
         return new PersistentCacheService(cacheRepository, meterRegistry);
     }
 
-    // Define the SynchronizedCacheService bean
     @Bean
     public SynchronizedCacheService synchronizedCacheService(
             InMemoryCacheService<String, String> inMemoryCacheService,
             PersistentCacheService persistentCacheService,
             CacheMetrics cacheMetrics,
-            MeterRegistry meterRegistry) {  // Added MeterRegistry as the fourth parameter
+            MeterRegistry meterRegistry) {
         logger.info("Creating SynchronizedCacheService bean");
         return new SynchronizedCacheService(inMemoryCacheService, persistentCacheService, cacheMetrics, meterRegistry);
     }
 
-    // Define the CacheMetrics bean for custom metrics
     @Bean
     public CacheMetrics cacheMetrics(MeterRegistry meterRegistry) {
         logger.info("Creating CacheMetrics bean");
-        return new CacheMetrics(meterRegistry);  // Register custom cache metrics
+        return new CacheMetrics(meterRegistry);
     }
 }

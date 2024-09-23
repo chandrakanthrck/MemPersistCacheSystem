@@ -29,60 +29,87 @@ public class InMemoryCacheService<K, V> implements CacheService<K, V> {
     public void put(K key, V value) {
         logger.info("Cache size before put: " + cache.size());
 
-        // Add key-value pair to the cache
-        cache.put(key, value);
-        logger.info("Inserted key: " + key + ". Cache size after put: " + cache.size());
+        try {
+            // Add key-value pair to the cache
+            cache.put(key, value);
+            logger.info("Inserted key: " + key + ". Cache size after put: " + cache.size());
 
-        // After inserting, enforce eviction to ensure the size limit
-        enforceEvictionPolicy();
+            // After inserting, enforce eviction to ensure the size limit
+            enforceEvictionPolicy();
 
-        // Log cache size after enforcing eviction
-        logger.info("Cache size after eviction enforcement: " + cache.size());
+            // Log cache size after enforcing eviction
+            logger.info("Cache size after eviction enforcement: " + cache.size());
 
-        // Update cache size metric
-        updateCacheSizeMetric();
+            // Update cache size metric
+            updateCacheSizeMetric();
+        } catch (Exception e) {
+            logger.severe("Error occurred while putting key: " + key + " into cache. Error: " + e.getMessage());
+            // Optionally, handle the error (e.g., alerting, fallback logic)
+        }
     }
 
     @Override
     public V get(K key) {
-        V value = cache.get(key);
+        try {
+            V value = cache.get(key);
 
-        if (value != null) {
-            // Cache hit
-            meterRegistry.counter("cache.hit", Tags.of("cache", "inMemoryCache")).increment();
-            evictionPolicy.onGet(key, value);  // Notify eviction policy about access
-            logger.info("Cache hit for key: " + key);
-        } else {
-            // Cache miss
-            meterRegistry.counter("cache.miss", Tags.of("cache", "inMemoryCache")).increment();
-            logger.info("Cache miss for key: " + key);
+            if (value != null) {
+                // Cache hit
+                meterRegistry.counter("cache.hit", Tags.of("cache", "inMemoryCache")).increment();
+                evictionPolicy.onGet(key, value);  // Notify eviction policy about access
+                logger.info("Cache hit for key: " + key);
+            } else {
+                // Cache miss
+                meterRegistry.counter("cache.miss", Tags.of("cache", "inMemoryCache")).increment();
+                logger.info("Cache miss for key: " + key);
+            }
+
+            return value;
+        } catch (Exception e) {
+            logger.severe("Error occurred while getting key: " + key + " from cache. Error: " + e.getMessage());
+            return null; // Or throw a custom exception if necessary
         }
-
-        return value;
     }
 
     @Override
     public void remove(K key) {
-        cache.remove(key);
-        updateCacheSizeMetric();
-        logger.info("Removed key: " + key + ". Cache size is now: " + cache.size());
+        try {
+            cache.remove(key);
+            updateCacheSizeMetric();
+            logger.info("Removed key: " + key + ". Cache size is now: " + cache.size());
+        } catch (Exception e) {
+            logger.severe("Error occurred while removing key: " + key + " from cache. Error: " + e.getMessage());
+        }
     }
 
     @Override
     public void clear() {
-        cache.clear();
-        updateCacheSizeMetric();
-        logger.info("Cache cleared.");
+        try {
+            cache.clear();
+            updateCacheSizeMetric();
+            logger.info("Cache cleared.");
+        } catch (Exception e) {
+            logger.severe("Error occurred while clearing cache. Error: " + e.getMessage());
+        }
     }
 
     @Override
     public int size() {
-        return cache.size();
+        try {
+            return cache.size();
+        } catch (Exception e) {
+            logger.severe("Error occurred while getting cache size. Error: " + e.getMessage());
+            return 0; // Or throw a custom exception if necessary
+        }
     }
 
     public void evictEntries() {
-        evictionPolicy.evictEntries(cache);
-        updateCacheSizeMetric();
+        try {
+            evictionPolicy.evictEntries(cache);
+            updateCacheSizeMetric();
+        } catch (Exception e) {
+            logger.severe("Error occurred while evicting entries from cache. Error: " + e.getMessage());
+        }
     }
 
     private void enforceEvictionPolicy() {

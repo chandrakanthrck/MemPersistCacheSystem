@@ -1,7 +1,6 @@
 package com.github.chandrakanthrck.cache_project.factory;
 
 import com.github.chandrakanthrck.cache_project.eviction.*;
-
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -25,21 +24,29 @@ public class EvictionPolicyFactory<K, V> {
      * @return an EvictionPolicy based on the input parameters
      */
     public EvictionPolicy<K, V> getEvictionPolicy(EvictionType evictionType, int cacheSize, long ttlMillis, boolean refreshOnGet, MeterRegistry meterRegistry) {
-        switch (evictionType) {
-            case TTL:
-                validateTtl(ttlMillis);
-                logger.info("Creating TTL eviction policy with TTL: " + ttlMillis + " ms and refreshOnGet: " + refreshOnGet);
-                return new TTLEvictionPolicy<>(ttlMillis, refreshOnGet, meterRegistry);
-            case LRU:
-                validateCacheSize(cacheSize);
-                logger.info("Creating LRU eviction policy with max size: " + cacheSize);
-                return new LRUEvictionPolicy<>(cacheSize, meterRegistry);
-            case LFU:
-                validateCacheSize(cacheSize);
-                logger.info("Creating LFU eviction policy with max size: " + cacheSize);
-                return new LFUEvictionPolicy<>(meterRegistry);  // LFU eviction with meter registry
-            default:
-                throw new IllegalArgumentException("Unknown eviction type: " + evictionType);
+        try {
+            switch (evictionType) {
+                case TTL:
+                    validateTtl(ttlMillis);
+                    logger.info("Creating TTL eviction policy with TTL: " + ttlMillis + " ms and refreshOnGet: " + refreshOnGet);
+                    return new TTLEvictionPolicy<>(ttlMillis, refreshOnGet, meterRegistry);
+                case LRU:
+                    validateCacheSize(cacheSize);
+                    logger.info("Creating LRU eviction policy with max size: " + cacheSize);
+                    return new LRUEvictionPolicy<>(cacheSize, meterRegistry);
+                case LFU:
+                    validateCacheSize(cacheSize);
+                    logger.info("Creating LFU eviction policy with max size: " + cacheSize);
+                    return new LFUEvictionPolicy<>(meterRegistry);  // LFU eviction with meter registry
+                default:
+                    throw new IllegalArgumentException("Unknown eviction type: " + evictionType);
+            }
+        } catch (IllegalArgumentException e) {
+            logger.severe("Error creating eviction policy: " + e.getMessage());
+            throw e; // Rethrow or handle it as needed
+        } catch (Exception e) {
+            logger.severe("Unexpected error while creating eviction policy: " + e.getMessage());
+            throw new RuntimeException("Failed to create eviction policy", e); // Rethrow as a runtime exception
         }
     }
 
