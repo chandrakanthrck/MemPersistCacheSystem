@@ -2,30 +2,38 @@ package com.github.chandrakanthrck.cache_project.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "cache_entries")
-public class CacheEntry<K, V> {
+public class CacheEntry {
 
     @Id
-    private K key;  // Key type
-    private V value;  // Value type
+    private String cacheKey;  // Renamed from 'key' to 'cacheKey' to avoid conflicts
 
-    // Getters and Setters
-    public K getKey() {
-        return key;
+    private String cacheValue;
+
+    // Default constructor
+    public CacheEntry() {}
+
+    // Constructor with parameters
+    public CacheEntry(String cacheKey, String cacheValue) {
+        this.cacheKey = cacheKey;
+        this.cacheValue = cacheValue;
     }
 
-    public void setKey(K key) {
-        this.key = key;
+    // Getters and setters
+    public String getCacheKey() {
+        return cacheKey;
     }
 
-    public V getValue() {
-        return value;
+    public void setCacheKey(String cacheKey) {
+        this.cacheKey = cacheKey;
     }
 
-    public void setValue(V value) {
-        this.value = value;
+    public String getCacheValue() {
+        return cacheValue;
+    }
+
+    public void setCacheValue(String cacheValue) {
+        this.cacheValue = cacheValue;
     }
 }

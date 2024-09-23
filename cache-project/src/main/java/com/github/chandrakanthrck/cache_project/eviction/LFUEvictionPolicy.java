@@ -3,7 +3,7 @@ package com.github.chandrakanthrck.cache_project.eviction;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
-public class LFUEvictionPolicy<K, V> implements EvictionPolicy<K, CacheValue<V>> {
+public class LFUEvictionPolicy<K, V> implements EvictionPolicy<K, V> {
 
     private final int maxSize;
 
@@ -12,7 +12,7 @@ public class LFUEvictionPolicy<K, V> implements EvictionPolicy<K, CacheValue<V>>
     }
 
     @Override
-    public void onPut(K key, CacheValue<V> value, ConcurrentMap<K, CacheValue<V>> cache) {
+    public void onPut(K key, V value, ConcurrentMap<K, V> cache) {
         if (cache.size() >= maxSize) {
             evictEntries(cache);  // Evict if cache is full
         }
@@ -20,20 +20,19 @@ public class LFUEvictionPolicy<K, V> implements EvictionPolicy<K, CacheValue<V>>
     }
 
     @Override
-    public void evictEntries(ConcurrentMap<K, CacheValue<V>> cache) {
+    public void evictEntries(ConcurrentMap<K, V> cache) {
         if (cache.size() > maxSize) {
             K lfuKey = null;
             int minAccessCount = Integer.MAX_VALUE;
 
-            // Find the least frequently accessed entry
-            for (Map.Entry<K, CacheValue<V>> entry : cache.entrySet()) {
-                if (entry.getValue().getAccessCount() < minAccessCount) {
-                    minAccessCount = entry.getValue().getAccessCount();
+            for (Map.Entry<K, V> entry : cache.entrySet()) {
+                int accessCount = ((CacheValue<V>) entry.getValue()).getAccessCount();  // Cast to CacheValue
+                if (accessCount < minAccessCount) {
+                    minAccessCount = accessCount;
                     lfuKey = entry.getKey();
                 }
             }
 
-            // Remove the least frequently used entry
             if (lfuKey != null) {
                 cache.remove(lfuKey);
             }

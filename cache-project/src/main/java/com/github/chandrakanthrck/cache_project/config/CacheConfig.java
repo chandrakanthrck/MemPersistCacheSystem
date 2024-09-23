@@ -13,23 +13,31 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class CacheConfig {
 
+    // Define the EvictionPolicyFactory bean
+    @Bean
+    public EvictionPolicyFactory<String> evictionPolicyFactory() {
+        return new EvictionPolicyFactory<>();  // Instantiate the factory
+    }
+
     @Bean
     public InMemoryCacheService<String, String> inMemoryCacheService(
-            EvictionPolicyFactory<String, String> evictionPolicyFactory,
+            EvictionPolicyFactory<String> evictionPolicyFactory,
             MeterRegistry meterRegistry) {
-        return new InMemoryCacheService<>(evictionPolicyFactory.getEvictionPolicy(EvictionPolicyFactory.EvictionType.LRU), meterRegistry);
+        return new InMemoryCacheService<>(
+                evictionPolicyFactory.getEvictionPolicy(EvictionPolicyFactory.EvictionType.LRU),
+                meterRegistry);
     }
 
     @Bean
-    public PersistentCacheService<String> persistentCacheService(CacheRepository<String> cacheRepository) {
-        return new PersistentCacheService<>(cacheRepository);
+    public PersistentCacheService persistentCacheService(CacheRepository cacheRepository) {
+        return new PersistentCacheService(cacheRepository);
     }
 
     @Bean
-    public SynchronizedCacheService<String> synchronizedCacheService(
+    public SynchronizedCacheService synchronizedCacheService(
             InMemoryCacheService<String, String> inMemoryCacheService,
-            PersistentCacheService<String> persistentCacheService,
+            PersistentCacheService persistentCacheService,
             CacheMetrics cacheMetrics) {
-        return new SynchronizedCacheService<>(inMemoryCacheService, persistentCacheService, cacheMetrics);
+        return new SynchronizedCacheService(inMemoryCacheService, persistentCacheService, cacheMetrics);
     }
 }
