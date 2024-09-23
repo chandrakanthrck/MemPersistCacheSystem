@@ -45,9 +45,24 @@ public class CacheController {
         return new ResponseEntity<>("Cache cleared", HttpStatus.OK);
     }
 
+    // Endpoint to get the total size of the cache (in-memory + persistent)
     @GetMapping("/size")
-    public ResponseEntity<Integer> size() {
+    public ResponseEntity<Integer> totalSize() {
         int size = cacheService.size();
         return new ResponseEntity<>(size, HttpStatus.OK);
+    }
+
+    // Endpoint to get the size of the in-memory cache
+    @GetMapping("/size/in-memory")
+    public ResponseEntity<Integer> inMemorySize() {
+        int inMemorySize = cacheService.getInMemoryCacheSize();
+        return new ResponseEntity<>(inMemorySize, HttpStatus.OK);
+    }
+
+    // Endpoint to get the size of the persistent cache
+    @GetMapping("/size/persistent")
+    public ResponseEntity<Integer> persistentSize() {
+        int persistentSize = cacheService.getPersistentCacheSize();
+        return new ResponseEntity<>(persistentSize, HttpStatus.OK);
     }
 }

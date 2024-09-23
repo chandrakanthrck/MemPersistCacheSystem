@@ -2,25 +2,27 @@ package com.github.chandrakanthrck.cache_project.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "cache_entry")  // This ensures the entity maps to the cache_entry table
 public class CacheEntry {
 
     @Id
-    private String cacheKey;  // Renamed from 'key' to 'cacheKey' to avoid conflicts
+    private String cacheKey;  // Use 'cacheKey' instead of 'key' to avoid reserved keyword conflicts in SQL
 
     private String cacheValue;
 
-    // Default constructor
-    public CacheEntry() {}
+    // Constructors
+    public CacheEntry() {
+    }
 
-    // Constructor with parameters
     public CacheEntry(String cacheKey, String cacheValue) {
         this.cacheKey = cacheKey;
         this.cacheValue = cacheValue;
     }
 
-    // Getters and setters
+    // Getters and Setters
     public String getCacheKey() {
         return cacheKey;
     }

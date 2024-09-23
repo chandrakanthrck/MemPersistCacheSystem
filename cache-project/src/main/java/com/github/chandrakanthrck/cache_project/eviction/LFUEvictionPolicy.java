@@ -1,41 +1,41 @@
 package com.github.chandrakanthrck.cache_project.eviction;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.logging.Logger;
 
 public class LFUEvictionPolicy<K, V> implements EvictionPolicy<K, V> {
 
-    private final int maxSize;
+    private static final Logger logger = Logger.getLogger(LFUEvictionPolicy.class.getName());
+    private final ConcurrentMap<K, Integer> accessCounts;
 
-    public LFUEvictionPolicy(int maxSize) {
-        this.maxSize = maxSize;
+    public LFUEvictionPolicy() {
+        this.accessCounts = new ConcurrentHashMap<>();
     }
 
     @Override
     public void onPut(K key, V value, ConcurrentMap<K, V> cache) {
-        if (cache.size() >= maxSize) {
-            evictEntries(cache);  // Evict if cache is full
-        }
-        cache.put(key, value);  // Add to cache
+        accessCounts.put(key, 1);  // Initialize the access count to 1 when a new entry is added
+        evictEntries(cache);  // Check if eviction is needed
+    }
+
+    @Override
+    public void onGet(K key, V value) {
+        accessCounts.compute(key, (k, count) -> (count == null) ? 1 : count + 1);  // Increment access count
     }
 
     @Override
     public void evictEntries(ConcurrentMap<K, V> cache) {
-        if (cache.size() > maxSize) {
-            K lfuKey = null;
-            int minAccessCount = Integer.MAX_VALUE;
+        K leastFrequentKey = accessCounts.entrySet().stream()
+                .min(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(null);
 
-            for (Map.Entry<K, V> entry : cache.entrySet()) {
-                int accessCount = ((CacheValue<V>) entry.getValue()).getAccessCount();  // Cast to CacheValue
-                if (accessCount < minAccessCount) {
-                    minAccessCount = accessCount;
-                    lfuKey = entry.getKey();
-                }
-            }
-
-            if (lfuKey != null) {
-                cache.remove(lfuKey);
-            }
+        if (leastFrequentKey != null) {
+            cache.remove(leastFrequentKey);  // Remove from actual cache
+            accessCounts.remove(leastFrequentKey);  // Remove from access count tracking
+            logger.info("Evicted LFU: Removed " + leastFrequentKey);
         }
     }
 }

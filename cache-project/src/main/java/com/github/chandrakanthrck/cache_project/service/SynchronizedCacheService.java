@@ -58,7 +58,18 @@ public class SynchronizedCacheService {
         return cacheMetrics;
     }
 
+    // Get the total size of both in-memory and persistent caches
     public int size() {
         return inMemoryCacheService.size() + persistentCacheService.size();
+    }
+
+    // Get the size of the in-memory cache
+    public int getInMemoryCacheSize() {
+        return inMemoryCacheService.size();
+    }
+
+    // Get the size of the persistent cache
+    public int getPersistentCacheSize() {
+        return persistentCacheService.size();
     }
 }

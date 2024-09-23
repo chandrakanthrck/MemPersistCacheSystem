@@ -15,6 +15,15 @@ public interface EvictionPolicy<K, V> {
     void onPut(K key, V value, ConcurrentMap<K, V> cache);
 
     /**
+     * This method is called when an item is accessed from the cache.
+     * The eviction logic (if any) should be updated based on the access.
+     *
+     * @param key the key of the item being accessed
+     * @param value the value of the item being accessed
+     */
+    void onGet(K key, V value);
+
+    /**
      * This method is responsible for evicting entries from the cache.
      * Different eviction policies can implement their custom logic here,
      * such as TTL expiration, LRU (least recently used), or LFU (least frequently used).

@@ -1,31 +1,50 @@
 package com.github.chandrakanthrck.cache_project.eviction;
 
-import java.util.Map;
+import java.time.Instant;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 public class TTLEvictionPolicy<K, V> implements EvictionPolicy<K, V> {
 
-    private final long ttl;  // Time-to-live in milliseconds
+    private static final Logger logger = Logger.getLogger(TTLEvictionPolicy.class.getName());
+    private final ConcurrentMap<K, Instant> timeMap;  // Use a thread-safe map for time tracking
+    private final long ttlMillis;
+    private final boolean refreshOnGet;  // Option to refresh the TTL on access
 
-    public TTLEvictionPolicy(long ttl, TimeUnit timeUnit) {
-        this.ttl = timeUnit.toMillis(ttl);
+    public TTLEvictionPolicy(long ttlMillis, boolean refreshOnGet) {
+        this.timeMap = new ConcurrentHashMap<>();
+        this.ttlMillis = ttlMillis;
+        this.refreshOnGet = refreshOnGet;
     }
 
     @Override
     public void onPut(K key, V value, ConcurrentMap<K, V> cache) {
-        cache.put(key, value);  // Add to cache
+        timeMap.put(key, Instant.now());  // Store the current timestamp when the entry is added
+        evictEntries(cache);  // Check if eviction is needed
+    }
+
+    @Override
+    public void onGet(K key, V value) {
+        if (refreshOnGet) {
+            timeMap.put(key, Instant.now());  // Optionally refresh the timestamp on access
+        }
     }
 
     @Override
     public void evictEntries(ConcurrentMap<K, V> cache) {
-        long now = System.currentTimeMillis();
+        Instant now = Instant.now();
 
-        // Evict entries that have exceeded their TTL
-        for (Map.Entry<K, V> entry : cache.entrySet()) {
-            if (now > ((CacheValue<V>) entry.getValue()).getCreatedAt() + ttl) {  // Cast to CacheValue to access the timestamp
-                cache.remove(entry.getKey());
+        // Iterate through the time map and remove entries older than TTL
+        timeMap.entrySet().removeIf(entry -> {
+            K key = entry.getKey();
+            Instant timeAdded = entry.getValue();
+            if (now.isAfter(timeAdded.plusMillis(ttlMillis))) {
+                cache.remove(key);  // Remove expired entry from cache
+                logger.info("Evicted TTL: Removed " + key);
+                return true;  // Remove from the time map
             }
-        }
+            return false;
+        });
     }
 }
