@@ -35,10 +35,24 @@ jobs:
             ${{ runner.os }}-maven
 
       - name: Build with Maven
-        run: mvn clean install
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            mvn clean install -Pproduction
+          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
+            mvn clean install -Pstaging
+          else
+            mvn clean install -Pnon-prod
+          fi
 
       - name: Run Tests
-        run: mvn test
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            mvn test -Pproduction
+          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
+            mvn test -Pstaging
+          else
+            mvn test -Pnon-prod
+          fi
 
   deploy:
     runs-on: ubuntu-latest
@@ -60,13 +74,20 @@ jobs:
           fi
 
       - name: Deploy to Server
+        env:
+          ENVIRONMENT: ${{ env.env }}
         run: |
-          echo "Deploying to ${{ env.env }} environment..."
-          # Add your specific deployment commands here, such as:
-          # if [[ "${{ env.env }}" == "production" ]]; then
-          #   ssh user@production-server 'deploy-commands'
-          # elif [[ "${{ env.env }}" == "staging" ]]; then
-          #   ssh user@staging-server 'deploy-commands'
-          # else
-          #   ssh user@non-prod-server 'deploy-commands'
-          # fi
+          echo "Deploying to $ENVIRONMENT environment..."
+          if [[ "$ENVIRONMENT" == "production" ]]; then
+            # Add production-specific deployment commands
+            echo "Deploying to Production Server..."
+            # Example: ssh user@production-server 'deploy-commands'
+          elif [[ "$ENVIRONMENT" == "staging" ]]; then
+            # Add staging-specific deployment commands
+            echo "Deploying to Staging Server..."
+            # Example: ssh user@staging-server 'deploy-commands'
+          else
+            # Add non-prod-specific deployment commands
+            echo "Deploying to Non-Prod Server..."
+            # Example: ssh user@non-prod-server 'deploy-commands'
+          fi
