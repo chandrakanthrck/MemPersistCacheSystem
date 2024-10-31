@@ -26,6 +26,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Debug Directory Structure
+        run: |
+          echo "Listing directory structure:"
+          ls -R  # List all files recursively to check the location of cache-project/pom.xml
+
       - name: Cache Dependencies
         uses: actions/cache@v2
         with:
