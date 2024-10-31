@@ -30,28 +30,41 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/MemPersistCacheSystem/pom.xml') }}
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven
 
       - name: Build with Maven
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            mvn clean install -f MemPersistCacheSystem/pom.xml -Pproduction
-          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
-            mvn clean install -f MemPersistCacheSystem/pom.xml -Pstaging
+          # Adjust the path for pom.xml as needed
+          POM_PATH="MemPersistCacheSystem/pom.xml"
+          if [[ -f "$POM_PATH" ]]; then
+            if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+              mvn clean install -f "$POM_PATH" -Pproduction
+            elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
+              mvn clean install -f "$POM_PATH" -Pstaging
+            else
+              mvn clean install -f "$POM_PATH" -Pnon-prod
+            fi
           else
-            mvn clean install -f MemPersistCacheSystem/pom.xml -Pnon-prod
+            echo "Error: $POM_PATH does not exist."
+            exit 1
           fi
 
       - name: Run Tests
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            mvn test -f MemPersistCacheSystem/pom.xml -Pproduction
-          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
-            mvn test -f MemPersistCacheSystem/pom.xml -Pstaging
+          # Adjust the path for pom.xml as needed
+          if [[ -f "$POM_PATH" ]]; then
+            if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+              mvn test -f "$POM_PATH" -Pproduction
+            elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
+              mvn test -f "$POM_PATH" -Pstaging
+            else
+              mvn test -f "$POM_PATH" -Pnon-prod
+            fi
           else
-            mvn test -f MemPersistCacheSystem/pom.xml -Pnon-prod
+            echo "Error: $POM_PATH does not exist."
+            exit 1
           fi
 
   deploy:
