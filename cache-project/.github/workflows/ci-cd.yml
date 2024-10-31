@@ -24,7 +24,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '17'
-          distribution: 'temurin'  # This is the default OpenJDK distribution
+          distribution: 'temurin'
 
       - name: Cache Dependencies
         uses: actions/cache@v2
@@ -37,21 +37,21 @@ jobs:
       - name: Build with Maven
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            mvn clean install -Pproduction
+            mvn clean install -f cache-project/pom.xml -Pproduction
           elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
-            mvn clean install -Pstaging
+            mvn clean install -f cache-project/pom.xml -Pstaging
           else
-            mvn clean install -Pnon-prod
+            mvn clean install -f cache-project/pom.xml -Pnon-prod
           fi
 
       - name: Run Tests
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            mvn test -Pproduction
+            mvn test -f cache-project/pom.xml -Pproduction
           elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
-            mvn test -Pstaging
+            mvn test -f cache-project/pom.xml -Pstaging
           else
-            mvn test -Pnon-prod
+            mvn test -f cache-project/pom.xml -Pnon-prod
           fi
 
   deploy:
@@ -79,15 +79,12 @@ jobs:
         run: |
           echo "Deploying to $ENVIRONMENT environment..."
           if [[ "$ENVIRONMENT" == "production" ]]; then
-            # Add production-specific deployment commands
             echo "Deploying to Production Server..."
             # Example: ssh user@production-server 'deploy-commands'
           elif [[ "$ENVIRONMENT" == "staging" ]]; then
-            # Add staging-specific deployment commands
             echo "Deploying to Staging Server..."
             # Example: ssh user@staging-server 'deploy-commands'
           else
-            # Add non-prod-specific deployment commands
             echo "Deploying to Non-Prod Server..."
             # Example: ssh user@non-prod-server 'deploy-commands'
           fi
