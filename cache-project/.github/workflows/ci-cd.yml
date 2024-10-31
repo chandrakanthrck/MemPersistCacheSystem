@@ -30,28 +30,28 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/MemPersistCacheSystem/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven
 
       - name: Build with Maven
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            mvn clean install -f cache-project/pom.xml -Pproduction
+            mvn clean install -f MemPersistCacheSystem/pom.xml -Pproduction
           elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
-            mvn clean install -f cache-project/pom.xml -Pstaging
+            mvn clean install -f MemPersistCacheSystem/pom.xml -Pstaging
           else
-            mvn clean install -f cache-project/pom.xml -Pnon-prod
+            mvn clean install -f MemPersistCacheSystem/pom.xml -Pnon-prod
           fi
 
       - name: Run Tests
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            mvn test -f cache-project/pom.xml -Pproduction
+            mvn test -f MemPersistCacheSystem/pom.xml -Pproduction
           elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
-            mvn test -f cache-project/pom.xml -Pstaging
+            mvn test -f MemPersistCacheSystem/pom.xml -Pstaging
           else
-            mvn test -f cache-project/pom.xml -Pnon-prod
+            mvn test -f MemPersistCacheSystem/pom.xml -Pnon-prod
           fi
 
   deploy:
