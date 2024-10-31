@@ -67,7 +67,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.30</version> <!-- Updated Lombok version -->
+			<version>1.18.30</version>
 			<scope>provided</scope>
 		</dependency>
 
@@ -114,4 +114,43 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<!-- Production Profile -->
+		<profile>
+			<id>production</id>
+			<properties>
+				<spring.config.activate.on-profile>production</spring.config.activate.on-profile>
+				<config.file>src/main/resources/application-prod.properties</config.file>
+			</properties>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+		</profile>
+
+		<!-- Staging Profile -->
+		<profile>
+			<id>staging</id>
+			<properties>
+				<spring.config.activate.on-profile>staging</spring.config.activate.on-profile>
+				<config.file>src/main/resources/application-staging.properties</config.file>
+			</properties>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+		</profile>
+
+		<!-- Non-Production Profile -->
+		<profile>
+			<id>non-prod</id>
+			<properties>
+				<spring.config.activate.on-profile>non-prod</spring.config.activate.on-profile>
+				<config.file>src/main/resources/application-nonprod.properties</config.file>
+			</properties>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+		</profile>
+	</profiles>
+
 </project>
