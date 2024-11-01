@@ -41,21 +41,20 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven
 
-      - name: Confirm Cache Project Pom
+      - name: Change Directory to cache-project
+        working-directory: ./cache-project
         run: |
-          if [[ -f "./cache-project/pom.xml" ]]; then
-            echo "Found cache-project/pom.xml."
-          else
-            echo "Error: cache-project/pom.xml does not exist!"
-            exit 1
-          fi
+          echo "Now in cache-project directory. Confirming contents:"
+          ls
 
       - name: Build with Maven
+        working-directory: ./cache-project
         run: |
           echo "Running Maven Build in cache-project directory..."
-          mvn -B -f ./cache-project/pom.xml clean install
+          mvn -B clean install
 
       - name: Run Tests
+        working-directory: ./cache-project
         run: |
           echo "Running Maven Tests in cache-project directory..."
-          mvn -B -f ./cache-project/pom.xml test
+          mvn -B test
