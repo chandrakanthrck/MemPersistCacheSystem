@@ -26,15 +26,12 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Build with Maven
+      - name: Increase JVM Options and Build with Maven
         run: |
           cd cache-project
-          mvn -B clean install
+          MAVEN_OPTS="-Xmx2g -XX:+HeapDumpOnOutOfMemoryError" mvn clean install -DskipTests=false
 
-      - name: Run Tests
+      - name: Run Tests with Test Profile and Retry Strategy
         run: |
           cd cache-project
-          MAVEN_OPTS="-Xmx1024m -XX:MaxPermSize=256m" mvn -B test
-        env:
-          SPRING_PROFILES_ACTIVE: test
-          TEST_RETRY: 2  # Retries if tests fail
+          MAVEN_OPTS="-Xmx2g -XX:+HeapDumpOnOutOfMemoryError" mvn test -Dspring.profiles.active=test --fail-at-end

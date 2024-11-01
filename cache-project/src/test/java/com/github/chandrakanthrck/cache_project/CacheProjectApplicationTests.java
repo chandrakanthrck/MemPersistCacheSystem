@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -15,7 +14,7 @@ class CacheProjectApplicationTests {
     private SynchronizedCacheService cacheService;
 
     @Test
-    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
+    @DirtiesContext
     void testCacheAndPersistentStore() {
         cacheService.put("key1", "value1");
         assertEquals("value1", cacheService.get("key1"));
@@ -23,7 +22,6 @@ class CacheProjectApplicationTests {
     }
 
     @Test
-    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     void testCacheMissAndUpdateFromPersistentStore() {
         cacheService.put("key2", "value2");
         cacheService.clear();
@@ -33,7 +31,6 @@ class CacheProjectApplicationTests {
     }
 
     @Test
-    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     void testClearCache() {
         cacheService.put("keyToClear", "valueToClear");
         assertEquals("valueToClear", cacheService.get("keyToClear"));
@@ -42,7 +39,6 @@ class CacheProjectApplicationTests {
     }
 
     @Test
-    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     void testCacheSize() {
         cacheService.put("keySize1", "valueSize1");
         cacheService.put("keySize2", "valueSize2");

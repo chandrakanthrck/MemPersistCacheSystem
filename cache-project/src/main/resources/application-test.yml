@@ -1,0 +1,9 @@
+# application-test.yml
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb  # Use in-memory database for testing
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  main:
+    allow-bean-definition-overriding: true
