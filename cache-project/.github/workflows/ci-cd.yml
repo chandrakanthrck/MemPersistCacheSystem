@@ -35,25 +35,33 @@ jobs:
             ${{ runner.os }}-maven
 
       - name: Build with Maven
-        working-directory: cache-project
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            mvn clean install -Pproduction
-          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
-            mvn clean install -Pstaging
+          if [[ -f "cache-project/pom.xml" ]]; then
+            if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+              mvn clean install -f cache-project/pom.xml -Pproduction
+            elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
+              mvn clean install -f cache-project/pom.xml -Pstaging
+            else
+              mvn clean install -f cache-project/pom.xml -Pnon-prod
+            fi
           else
-            mvn clean install -Pnon-prod
+            echo "Error: cache-project/pom.xml does not exist."
+            exit 1
           fi
 
       - name: Run Tests
-        working-directory: cache-project
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            mvn test -Pproduction
-          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
-            mvn test -Pstaging
+          if [[ -f "cache-project/pom.xml" ]]; then
+            if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+              mvn test -f cache-project/pom.xml -Pproduction
+            elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
+              mvn test -f cache-project/pom.xml -Pstaging
+            else
+              mvn test -f cache-project/pom.xml -Pnon-prod
+            fi
           else
-            mvn test -Pnon-prod
+            echo "Error: cache-project/pom.xml does not exist."
+            exit 1
           fi
 
   deploy:
