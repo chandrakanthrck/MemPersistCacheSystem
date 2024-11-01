@@ -8,7 +8,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.3.4</version>
-		<relativePath/> <!-- Lookup parent from repository -->
+		<relativePath/>
 	</parent>
 
 	<groupId>com.github.chandrakanthrck</groupId>
@@ -24,54 +24,39 @@
 	</properties>
 
 	<dependencies>
-		<!-- Spring Data JPA for persistence -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
-
-		<!-- Spring Web for building REST APIs -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-
-		<!-- Spring Boot DevTools for hot reload -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
 			<scope>runtime</scope>
 			<optional>true</optional>
 		</dependency>
-
-		<!-- MySQL Connector for persistence -->
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>8.0.33</version>
 		</dependency>
-
-		<!-- Micrometer for Prometheus integration -->
 		<dependency>
 			<groupId>io.micrometer</groupId>
 			<artifactId>micrometer-registry-prometheus</artifactId>
 		</dependency>
-
-		<!-- Spring Boot Actuator for metrics and monitoring -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
-
-		<!-- Lombok for reducing boilerplate code -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.30</version> <!-- Updated Lombok version -->
+			<version>1.18.30</version>
 			<scope>provided</scope>
 		</dependency>
-
-		<!-- Spring Boot Starter Test for unit testing -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -81,11 +66,10 @@
 
 	<build>
 		<plugins>
-			<!-- Spring Boot Maven Plugin for packaging the application -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>3.3.4</version> <!-- Match Spring Boot version -->
+				<version>3.3.4</version>
 				<executions>
 					<execution>
 						<goals>
@@ -94,12 +78,10 @@
 					</execution>
 				</executions>
 			</plugin>
-
-			<!-- Maven Compiler Plugin to ensure correct Java version -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.10.1</version> <!-- Latest stable version -->
+				<version>3.10.1</version>
 				<configuration>
 					<source>${java.version}</source>
 					<target>${java.version}</target>
@@ -107,11 +89,44 @@
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
-							<version>1.18.30</version> <!-- Ensure annotation processing for Lombok -->
+							<version>1.18.30</version>
 						</path>
 					</annotationProcessorPaths>
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>production</id>
+			<properties>
+				<spring.config.activate.on-profile>production</spring.config.activate.on-profile>
+				<config.file>src/main/resources/application-prod.properties</config.file>
+			</properties>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+		</profile>
+		<profile>
+			<id>staging</id>
+			<properties>
+				<spring.config.activate.on-profile>staging</spring.config.activate.on-profile>
+				<config.file>src/main/resources/application-staging.properties</config.file>
+			</properties>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+		</profile>
+		<profile>
+			<id>non-prod</id>
+			<properties>
+				<spring.config.activate.on-profile>non-prod</spring.config.activate.on-profile>
+				<config.file>src/main/resources/application-nonprod.properties</config.file>
+			</properties>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+		</profile>
+	</profiles>
 </project>
