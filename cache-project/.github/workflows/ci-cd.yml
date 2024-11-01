@@ -34,42 +34,42 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven
 
-      - name: Debug Directory Structure
+      - name: Change to cache-project Directory
+        working-directory: cache-project
         run: |
-          echo "Root directory structure:"
-          ls -R
-          echo "cache-project directory structure:"
-          ls -R cache-project
+          echo "Changed working directory to cache-project"
 
       - name: Build with Maven
+        working-directory: cache-project
         run: |
-          if [[ -f "cache-project/pom.xml" ]]; then
+          if [[ -f "pom.xml" ]]; then
             echo "Building project with profile based on branch..."
             if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-              mvn clean install -f cache-project/pom.xml -Pproduction
+              mvn clean install -Pproduction
             elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
-              mvn clean install -f cache-project/pom.xml -Pstaging
+              mvn clean install -Pstaging
             else
-              mvn clean install -f cache-project/pom.xml -Pnon-prod
+              mvn clean install -Pnon-prod
             fi
           else
-            echo "Error: cache-project/pom.xml not found."
+            echo "Error: pom.xml not found in cache-project directory."
             exit 1
           fi
 
       - name: Run Tests
+        working-directory: cache-project
         run: |
-          if [[ -f "cache-project/pom.xml" ]]; then
+          if [[ -f "pom.xml" ]]; then
             echo "Running tests with profile based on branch..."
             if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-              mvn test -f cache-project/pom.xml -Pproduction
+              mvn test -Pproduction
             elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
-              mvn test -f cache-project/pom.xml -Pstaging
+              mvn test -Pstaging
             else
-              mvn test -f cache-project/pom.xml -Pnon-prod
+              mvn test -Pnon-prod
             fi
           else
-            echo "Error: cache-project/pom.xml not found."
+            echo "Error: pom.xml not found in cache-project directory."
             exit 1
           fi
 
