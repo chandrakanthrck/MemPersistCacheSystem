@@ -1,28 +1,10 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb  # Use in-memory database for testing
+    url: jdbc:h2:mem:testdb
     driver-class-name: org.h2.Driver
     username: sa
-    password: ""
+    password:
   jpa:
     hibernate:
-      ddl-auto: create-drop  # Automatically create and drop tables for each test
-  main:
-    allow-bean-definition-overriding: true
-  cache:
-    type: simple  # Use a simple in-memory cache for testing
-
-# Simplified logging configuration
-logging:
-  level:
-    root: INFO  # Set root level; package-specific levels are omitted
-
-# Management and monitoring adjustments for testing
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health  # Limit to health endpoint in tests
-  endpoint:
-    health:
-      show-details: always
+      ddl-auto: create-drop
+    show-sql: true

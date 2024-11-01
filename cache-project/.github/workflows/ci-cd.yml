@@ -37,8 +37,12 @@ jobs:
         run: |
           cd cache-project
           mvn -B clean install
+        env:
+          MAVEN_OPTS: "-Xms512m -Xmx2048m"
 
       - name: Run Tests with Test Profile and Retry Strategy
         run: |
           cd cache-project
           mvn test -Dspring.profiles.active=test --fail-at-end -X
+        env:
+          MAVEN_OPTS: "-Xms512m -Xmx2048m"
