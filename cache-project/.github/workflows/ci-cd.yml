@@ -33,28 +33,20 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Cache Dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/cache-project/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven
-
       - name: Change Directory to cache-project
-        working-directory: ./cache-project
         run: |
+          cd cache-project
           echo "Now in cache-project directory. Confirming contents:"
           ls
 
       - name: Build with Maven
-        working-directory: ./cache-project
         run: |
+          cd cache-project
           echo "Running Maven Build in cache-project directory..."
           mvn -B clean install
 
       - name: Run Tests
-        working-directory: ./cache-project
         run: |
+          cd cache-project
           echo "Running Maven Tests in cache-project directory..."
           mvn -B test
