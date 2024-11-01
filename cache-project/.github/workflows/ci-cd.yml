@@ -35,26 +35,12 @@ jobs:
             ${{ runner.os }}-maven
 
       - name: Build with Maven
-        working-directory: ./cache-project
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            mvn clean install -Pproduction
-          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
-            mvn clean install -Pstaging
-          else
-            mvn clean install -Pnon-prod
-          fi
+          mvn -f cache-project/pom.xml clean install -Pproduction
 
       - name: Run Tests
-        working-directory: ./cache-project
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            mvn test -Pproduction
-          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
-            mvn test -Pstaging
-          else
-            mvn test -Pnon-prod
-          fi
+          mvn -f cache-project/pom.xml test -Pproduction
 
   deploy:
     runs-on: ubuntu-latest
@@ -76,7 +62,6 @@ jobs:
           fi
 
       - name: Deploy to Server
-        working-directory: ./cache-project
         env:
           ENVIRONMENT: ${{ env.env }}
         run: |
