@@ -20,8 +20,26 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: List Files for Debugging
+      - name: List All Files for Debugging
         run: ls -R
+
+      - name: Verify cache-project Directory Exists
+        run: |
+          if [ -d "cache-project" ]; then
+            echo "Directory cache-project exists"
+          else
+            echo "Directory cache-project does NOT exist"
+            exit 1
+          fi
+
+      - name: Verify pom.xml Exists
+        run: |
+          if [ -f "cache-project/pom.xml" ]; then
+            echo "Found cache-project/pom.xml"
+          else
+            echo "File cache-project/pom.xml NOT found"
+            exit 1
+          fi
 
       - name: Set up JDK 17
         uses: actions/setup-java@v2
