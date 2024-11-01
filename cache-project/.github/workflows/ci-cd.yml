@@ -34,19 +34,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven
 
-      - name: List Directory Structure for Debugging
-        run: |
-          echo "Root directory structure:"
-          ls -R .
-          echo "cache-project directory structure:"
-          ls -R cache-project
-
       - name: Build with Maven
+        working-directory: ./cache-project
         run: |
-          cd cache-project
-          echo "Working directory after cd to cache-project:"
-          pwd
-          ls
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             mvn clean install -Pproduction
           elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
@@ -56,10 +46,8 @@ jobs:
           fi
 
       - name: Run Tests
+        working-directory: ./cache-project
         run: |
-          cd cache-project
-          echo "Running tests in directory:"
-          pwd
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             mvn test -Pproduction
           elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
