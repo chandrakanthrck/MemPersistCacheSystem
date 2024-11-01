@@ -33,20 +33,21 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Change Directory to cache-project
-        run: |
-          cd cache-project
-          echo "Now in cache-project directory. Confirming contents:"
-          ls
-
       - name: Build with Maven
+        working-directory: ./cache-project
         run: |
-          cd cache-project
           echo "Running Maven Build in cache-project directory..."
-          mvn -B clean install
+          mvn -B clean install -e -X
 
       - name: Run Tests
+        working-directory: ./cache-project
         run: |
-          cd cache-project
           echo "Running Maven Tests in cache-project directory..."
-          mvn -B test
+          mvn -B test -e -X
+
+      - name: Archive Test Reports
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-reports
+          path: ./cache-project/target/surefire-reports/
