@@ -34,11 +34,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven
 
-      - name: Navigate to Project Directory
-        run: cd cache-project
-
       - name: Build with Maven
-        working-directory: ./cache-project
+        working-directory: cache-project
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             mvn clean install -Pproduction
@@ -49,7 +46,7 @@ jobs:
           fi
 
       - name: Run Tests
-        working-directory: ./cache-project
+        working-directory: cache-project
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             mvn test -Pproduction
