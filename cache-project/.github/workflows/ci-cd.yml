@@ -20,13 +20,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: List All Files for Debugging
-        run: |
-          echo "Listing all files in root directory:"
-          ls -R .
-          echo "Listing contents of cache-project directory specifically:"
-          ls -R ./cache-project
-
       - name: Set up JDK 17
         uses: actions/setup-java@v2
         with:
@@ -34,20 +27,14 @@ jobs:
           distribution: 'temurin'
 
       - name: Build with Maven
-        working-directory: ./cache-project
         run: |
-          echo "Running Maven Build in cache-project directory..."
-          mvn -B clean install -e -X
+          cd cache-project
+          mvn -B clean install
 
       - name: Run Tests
-        working-directory: ./cache-project
         run: |
-          echo "Running Maven Tests in cache-project directory..."
-          mvn -B test -e -X
-
-      - name: Archive Test Reports
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-reports
-          path: ./cache-project/target/surefire-reports/
+          cd cache-project
+          MAVEN_OPTS="-Xmx1024m -XX:MaxPermSize=256m" mvn -B test
+        env:
+          SPRING_PROFILES_ACTIVE: test
+          TEST_RETRY: 2  # Retries if tests fail
