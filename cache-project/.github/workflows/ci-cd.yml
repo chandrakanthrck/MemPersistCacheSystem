@@ -34,6 +34,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven
 
+      - name: Navigate to Project Directory
+        run: cd cache-project
+
       - name: Build with Maven
         working-directory: ./cache-project
         run: |
