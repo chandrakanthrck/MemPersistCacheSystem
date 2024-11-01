@@ -34,43 +34,38 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven
 
-      - name: Change to cache-project Directory
-        working-directory: cache-project
+      - name: List Directory Structure for Debugging
         run: |
-          echo "Changed working directory to cache-project"
+          echo "Root directory structure:"
+          ls -R .
+          echo "cache-project directory structure:"
+          ls -R cache-project
 
       - name: Build with Maven
-        working-directory: cache-project
         run: |
-          if [[ -f "pom.xml" ]]; then
-            echo "Building project with profile based on branch..."
-            if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-              mvn clean install -Pproduction
-            elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
-              mvn clean install -Pstaging
-            else
-              mvn clean install -Pnon-prod
-            fi
+          cd cache-project
+          echo "Working directory after cd to cache-project:"
+          pwd
+          ls
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            mvn clean install -Pproduction
+          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
+            mvn clean install -Pstaging
           else
-            echo "Error: pom.xml not found in cache-project directory."
-            exit 1
+            mvn clean install -Pnon-prod
           fi
 
       - name: Run Tests
-        working-directory: cache-project
         run: |
-          if [[ -f "pom.xml" ]]; then
-            echo "Running tests with profile based on branch..."
-            if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-              mvn test -Pproduction
-            elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
-              mvn test -Pstaging
-            else
-              mvn test -Pnon-prod
-            fi
+          cd cache-project
+          echo "Running tests in directory:"
+          pwd
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            mvn test -Pproduction
+          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
+            mvn test -Pstaging
           else
-            echo "Error: pom.xml not found in cache-project directory."
-            exit 1
+            mvn test -Pnon-prod
           fi
 
   deploy:
