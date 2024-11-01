@@ -34,9 +34,17 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven
 
+      - name: Debug Directory Structure
+        run: |
+          echo "Root directory structure:"
+          ls -R
+          echo "cache-project directory structure:"
+          ls -R cache-project
+
       - name: Build with Maven
         run: |
           if [[ -f "cache-project/pom.xml" ]]; then
+            echo "Building project with profile based on branch..."
             if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
               mvn clean install -f cache-project/pom.xml -Pproduction
             elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
@@ -45,13 +53,14 @@ jobs:
               mvn clean install -f cache-project/pom.xml -Pnon-prod
             fi
           else
-            echo "Error: cache-project/pom.xml does not exist."
+            echo "Error: cache-project/pom.xml not found."
             exit 1
           fi
 
       - name: Run Tests
         run: |
           if [[ -f "cache-project/pom.xml" ]]; then
+            echo "Running tests with profile based on branch..."
             if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
               mvn test -f cache-project/pom.xml -Pproduction
             elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
@@ -60,7 +69,7 @@ jobs:
               mvn test -f cache-project/pom.xml -Pnon-prod
             fi
           else
-            echo "Error: cache-project/pom.xml does not exist."
+            echo "Error: cache-project/pom.xml not found."
             exit 1
           fi
 
