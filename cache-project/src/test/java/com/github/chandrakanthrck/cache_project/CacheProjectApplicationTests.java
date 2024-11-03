@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 //@ActiveProfiles("test")
 @SpringBootTest
-@AutoConfigureMockMvc
+//@AutoConfigureMockMvc
 class CacheProjectApplicationTests {
 
     @Autowired
