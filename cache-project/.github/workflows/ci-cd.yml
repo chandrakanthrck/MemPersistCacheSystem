@@ -46,3 +46,48 @@ jobs:
           mvn test -Dspring.profiles.active=test --fail-at-end -X
         env:
           MAVEN_OPTS: "-Xms512m -Xmx2048m"
+
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/staging'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Deploy to Staging Environment
+        run: |
+          echo "Deploying to Staging environment..."
+          # Add deployment script or commands here for staging
+        env:
+          SPRING_PROFILES_ACTIVE: staging
+
+  deploy-nonprod:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/non-prod'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Deploy to Non-Prod Environment
+        run: |
+          echo "Deploying to Non-Prod environment..."
+          # Add deployment script or commands here for non-prod
+        env:
+          SPRING_PROFILES_ACTIVE: nonprod
+
+  deploy-prod:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Deploy to Production Environment
+        run: |
+          echo "Deploying to Production environment..."
+          # Add deployment script or commands here for production
+        env:
+          SPRING_PROFILES_ACTIVE: prod
