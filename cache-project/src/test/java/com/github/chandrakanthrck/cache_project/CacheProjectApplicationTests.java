@@ -1,6 +1,7 @@
 package com.github.chandrakanthrck.cache_project;
 
 import com.github.chandrakanthrck.cache_project.service.SynchronizedCacheService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -10,13 +11,18 @@ import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-//@ActiveProfiles("test")
-@SpringBootTest
-//@AutoConfigureMockMvc
+@ActiveProfiles("test")
+@AutoConfigureMockMvc
+@SpringBootTest(classes = {CacheProjectApplication.class})
 class CacheProjectApplicationTests {
 
     @Autowired
     private SynchronizedCacheService cacheService;
+
+    @BeforeEach
+    void setUp() {
+        assertNotNull(cacheService, "CacheService should be loaded by the ApplicationContext.");
+    }
 
     @Test
     @DirtiesContext
@@ -47,6 +53,12 @@ class CacheProjectApplicationTests {
     void testCacheSize() {
         cacheService.put("keySize1", "valueSize1");
         cacheService.put("keySize2", "valueSize2");
-        assertTrue(cacheService.size() >= 2);
+        assertTrue(cacheService.size() >= 2, "Cache size should be at least 2.");
+    }
+
+    @Test
+    void contextLoads() {
+        // Basic context loading test
+        assertNotNull(cacheService, "The application context should load the CacheService bean.");
     }
 }
