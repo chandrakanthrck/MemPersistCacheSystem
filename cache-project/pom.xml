@@ -7,8 +7,8 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.3.4</version>
-		<relativePath/>
+		<version>3.1.4</version> <!-- Change to a stable version if necessary -->
+		<relativePath/> <!-- Adjust or remove if not needed -->
 	</parent>
 
 	<groupId>com.github.chandrakanthrck</groupId>
@@ -24,6 +24,7 @@
 	</properties>
 
 	<dependencies>
+		<!-- Core Spring Boot Dependencies -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -32,31 +33,42 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+
+		<!-- H2 Database for Testing -->
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-devtools</artifactId>
-			<scope>runtime</scope>
-			<optional>true</optional>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
 		</dependency>
+
+		<!-- MySQL Connector -->
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>8.0.33</version>
 		</dependency>
+
+		<!-- Micrometer Prometheus Monitoring -->
 		<dependency>
 			<groupId>io.micrometer</groupId>
 			<artifactId>micrometer-registry-prometheus</artifactId>
 		</dependency>
+
+		<!-- Spring Boot Actuator for Metrics -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
+
+		<!-- Lombok for Cleaner Code -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<version>1.18.30</version>
 			<scope>provided</scope>
 		</dependency>
+
+		<!-- Testing Dependencies -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -69,14 +81,6 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>3.3.4</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>repackage</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -85,45 +89,27 @@
 				<configuration>
 					<source>${java.version}</source>
 					<target>${java.version}</target>
-					<annotationProcessorPaths>
-						<path>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-							<version>1.18.30</version>
-						</path>
-					</annotationProcessorPaths>
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
 
+	<!-- Profiles for different environments -->
 	<profiles>
 		<profile>
 			<id>production</id>
-			<properties>
-				<spring.config.activate.on-profile>production</spring.config.activate.on-profile>
-				<config.file>src/main/resources/application-prod.properties</config.file>
-			</properties>
 			<activation>
 				<activeByDefault>false</activeByDefault>
 			</activation>
 		</profile>
 		<profile>
 			<id>staging</id>
-			<properties>
-				<spring.config.activate.on-profile>staging</spring.config.activate.on-profile>
-				<config.file>src/main/resources/application-staging.properties</config.file>
-			</properties>
 			<activation>
 				<activeByDefault>false</activeByDefault>
 			</activation>
 		</profile>
 		<profile>
 			<id>non-prod</id>
-			<properties>
-				<spring.config.activate.on-profile>non-prod</spring.config.activate.on-profile>
-				<config.file>src/main/resources/application-nonprod.properties</config.file>
-			</properties>
 			<activation>
 				<activeByDefault>false</activeByDefault>
 			</activation>
