@@ -1,11 +1,7 @@
 package com.github.chandrakanthrck.cache_project.config;
 
 import com.github.chandrakanthrck.cache_project.factory.EvictionPolicyFactory;
-import com.github.chandrakanthrck.cache_project.metrics.CacheMetrics;
-import com.github.chandrakanthrck.cache_project.repository.CacheRepository;
 import com.github.chandrakanthrck.cache_project.service.InMemoryCacheService;
-import com.github.chandrakanthrck.cache_project.service.PersistentCacheService;
-import com.github.chandrakanthrck.cache_project.service.SynchronizedCacheService;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -50,27 +46,5 @@ public class CacheConfig {
                 meterRegistry,
                 maxCacheSize
         );
-    }
-
-    @Bean
-    public PersistentCacheService persistentCacheService(CacheRepository cacheRepository, MeterRegistry meterRegistry) {
-        logger.info("Creating PersistentCacheService bean");
-        return new PersistentCacheService(cacheRepository, meterRegistry);
-    }
-
-    @Bean
-    public SynchronizedCacheService synchronizedCacheService(
-            InMemoryCacheService<String, String> inMemoryCacheService,
-            PersistentCacheService persistentCacheService,
-            CacheMetrics cacheMetrics,
-            MeterRegistry meterRegistry) {
-        logger.info("Creating SynchronizedCacheService bean");
-        return new SynchronizedCacheService(inMemoryCacheService, persistentCacheService, cacheMetrics, meterRegistry);
-    }
-
-    @Bean
-    public CacheMetrics cacheMetrics(MeterRegistry meterRegistry) {
-        logger.info("Creating CacheMetrics bean");
-        return new CacheMetrics(meterRegistry);
     }
 }

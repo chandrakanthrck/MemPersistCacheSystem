@@ -6,11 +6,15 @@ on:
       - main
       - staging
       - non-prod
+      - prod
+      - test
   pull_request:
     branches:
       - main
       - staging
       - non-prod
+      - prod
+      - test
 
 jobs:
   build:
@@ -24,49 +28,95 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '17'
-          distribution: 'temurin'  # This is the default OpenJDK distribution
+          distribution: 'temurin'
 
-      - name: Cache Dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven
+      - name: List All Files for Debugging
+        run: |
+          echo "Listing all files in the root directory:"
+          ls -R .
+          echo "Listing contents of cache-project directory specifically:"
+          ls -R ./cache-project
 
       - name: Build with Maven
-        run: mvn clean install
+        run: |
+          if [ -d "./cache-project" ]; then
+            cd cache-project
+            mvn -B clean install
+          else
+            echo "cache-project directory not found!"
+            exit 1
+          fi
+        env:
+          MAVEN_OPTS: "-Xms512m -Xmx2048m"
 
-      - name: Run Tests
-        run: mvn test
+      - name: Run Tests with Test Profile and Retry Strategy
+        run: |
+          if [ -d "./cache-project" ]; then
+            cd cache-project
+            mvn test -Dspring.profiles.active=test --fail-at-end -X
+          else
+            echo "cache-project directory not found!"
+            exit 1
+          fi
+        env:
+          MAVEN_OPTS: "-Xms512m -Xmx2048m"
 
-  deploy:
+  deploy-test:
     runs-on: ubuntu-latest
     needs: build
-
+    if: github.ref == 'refs/heads/test'
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: Set Environment
-        id: set-env
+      - name: Deploy to Test Environment
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            echo "env=production" >> $GITHUB_ENV
-          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
-            echo "env=staging" >> $GITHUB_ENV
-          else
-            echo "env=non-prod" >> $GITHUB_ENV
-          fi
+          echo "Deploying to Test environment..."
+          # Add deployment script or commands here for test environment
+        env:
+          SPRING_PROFILES_ACTIVE: test
 
-      - name: Deploy to Server
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/staging'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Deploy to Staging Environment
         run: |
-          echo "Deploying to ${{ env.env }} environment..."
-          # Add your specific deployment commands here, such as:
-          # if [[ "${{ env.env }}" == "production" ]]; then
-          #   ssh user@production-server 'deploy-commands'
-          # elif [[ "${{ env.env }}" == "staging" ]]; then
-          #   ssh user@staging-server 'deploy-commands'
-          # else
-          #   ssh user@non-prod-server 'deploy-commands'
-          # fi
+          echo "Deploying to Staging environment..."
+          # Add deployment script or commands here for staging
+        env:
+          SPRING_PROFILES_ACTIVE: staging
+
+  deploy-nonprod:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/non-prod'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Deploy to Non-Prod Environment
+        run: |
+          echo "Deploying to Non-Prod environment..."
+          # Add deployment script or commands here for non-prod
+        env:
+          SPRING_PROFILES_ACTIVE: nonprod
+
+  deploy-prod:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/prod'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Deploy to Production Environment
+        run: |
+          echo "Deploying to Production environment..."
+          # Add deployment script or commands here for production
+        env:
+          SPRING_PROFILES_ACTIVE: prod
